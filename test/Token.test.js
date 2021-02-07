@@ -1,14 +1,14 @@
-const { should } = require("chai");
+import { tokens } from "../src/helpers";
 
 const Token = artifacts.require("./Token");
 
 require("chai").use(require("chai-as-promised")).should();
 
-contract("Token", ([deployer]) => {
+contract("Token", ([deployer,receiver]) => {
   const name = "R2-D2";
   const symbol = "R2D";
   const decimals = "18";
-  const totalSupply = "1000000000000000000000000";
+  const totalSupply = tokens(1000000).toString();
   let token;
   beforeEach(async () => {
     token = await Token.new();
@@ -29,11 +29,11 @@ contract("Token", ([deployer]) => {
     });
     it("tracks the total supply", async () => {
       const result = await token.totalSupply();
-      result.toString().should.equal(totalSupply);
+      result.toString().should.equal(totalSupply.toString());
     });
     it("assigns the total supply to the deployer", async () => {
       const result = await token.balanceOf(deployer);
-      result.toString().should.equal(totalSupply);
+      result.toString().should.equal(totalSupply.toString());
     });
   });
   describe("sending tokens", () => {
@@ -41,17 +41,17 @@ contract("Token", ([deployer]) => {
       let balanceOf;
       balanceOf = await token.balanceOf(deployer);
       console.log("deployer balance before", balanceOf.toString());
-      balanceOf = await token.balanceOf(reciever);
-      console.log("reciever balance before transfer", balanceOf.toString());
+      balanceOf = await token.balanceOf(receiver);
+      console.log("receiver balance before transfer", balanceOf.toString());
 
-      await token.transfer(reciever, "100000000000000000000000", {
+      await token.transfer(receiver, tokens(100), {
         from: deployer,
       });
 
       balanceOf = await token.balanceOf(deployer);
       console.log("deployer balance after", balanceOf.toString());
-      balanceOf = await token.balanceOf(reciever);
-      console.log("reciever balance after transfer", balanceOf.toString());
+      balanceOf = await token.balanceOf(receiver);
+      console.log("receiver balance after transfer", balanceOf.toString());
     });
   });
 });
