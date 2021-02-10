@@ -1,8 +1,8 @@
 {
-  "name": "dapp-crypto-exchange",
+  "name": "r2-d2-crypto-exchange",
   "version": "0.2.0",
   "description": "Decentralized Ethereum Token Exchange",
-  "author": "dev@dappuniversity.com",
+  "author": "shiv",
   "private": true,
   "homepage": ".",
   "engines": {
@@ -35,7 +35,7 @@
     "redux": "4.0.5",
     "redux-logger": "3.0.6",
     "reselect": "4.0.0",
-    "solidity-coverage": "0.7.10",
+    "solidity-coverage": "^0.7.14",
     "truffle": "5.1.45",
     "truffle-flattener": "1.5.0",
     "truffle-hdwallet-provider-privkey": "0.3.0",
