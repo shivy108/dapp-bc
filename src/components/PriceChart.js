@@ -1,0 +1,62 @@
+import React from "react";
+import { Component } from "react";
+import Chart from "react-apexcharts";
+import { connect } from "react-redux";
+import {
+  priceChartLoadedSelector,
+  priceChartSelector,
+} from "../store/selectors";
+import { chartOptions } from "./PriceChart.config";
+import Spinner from "./Spinner";
+
+const priceSymbol = (lastPriceChange) => {
+  let output;
+  if (lastPriceChange === "+") {
+    output = <span className="text-success">&#9650;</span>; // Green up tiangle
+  } else {
+    output = <span className="text-danger">&#9660;</span>; // Red down triangle
+  }
+  return output;
+};
+
+const showPriceChart = (priceChart) => {
+  return (
+    <div className="price-chart">
+      <div className="price">
+        <h4>
+          R2D/ETH &nbsp; {priceSymbol(priceChart.lastPriceChange)} &nbsp;{" "}
+          {priceChart.lastPrice}{" "}
+        </h4>
+      </div>
+      <Chart
+        options={chartOptions}
+        series={priceChart.series}
+        type="candlestick"
+      />
+    </div>
+  );
+};
+
+class PriceChart extends Component {
+  render() {
+    return (
+      <div className="card bg-dark text-white">
+        <div className="card-header">PriceChart</div>
+        <div className="card-body">
+          {this.props.priceChartLoaded ? (
+            showPriceChart(this.props.priceChart)
+          ) : (
+            <Spinner />
+          )}
+        </div>
+      </div>
+    );
+  }
+}
+function mapStateToProps(state) {
+  return {
+    priceChartLoaded: priceChartLoadedSelector(state),
+    priceChart: priceChartSelector(state),
+  };
+}
+export default connect(mapStateToProps)(PriceChart);

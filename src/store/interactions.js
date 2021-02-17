@@ -6,6 +6,7 @@ import {
   cancelledOrdersLoaded,
   exchangeLoaded,
   filledOrdersLoaded,
+  orderCancelling,
   tokenLoaded,
   web3AccountLoaded,
   web3Loaded,
@@ -55,28 +56,48 @@ export const loadExchange = async (web3, networkId, dispatch) => {
 
 export const loadAllOrders = async (exchange, dispatch) => {
   // Fetch cancelled orders with the "Cancel" event stream
-  const cancelStream = await exchange.getPastEvents("Cancel", {
-    fromBlock: 0,
-    toBlock: "latest",
-  });
-  // Format cancelled orders
-  const cancelledOrders = await cancelStream.map((event) => event.returnValues);
-  //add cancelled orders to the redux store
-  dispatch(cancelledOrdersLoaded(cancelledOrders));
+  if (exchange !== undefined) {
+    const cancelStream = await exchange.getPastEvents("Cancel", {
+      fromBlock: 0,
+      toBlock: "latest",
+    });
+    // Format cancelled orders
+    const cancelledOrders = await cancelStream.map(
+      (event) => event.returnValues
+    );
+    //add cancelled orders to the redux store
+    dispatch(cancelledOrdersLoaded(cancelledOrders));
 
-  const tradeStream = await exchange.getPastEvents("Trade", {
-    fromBlock: 0,
-    toBlock: "latest",
-  });
-  const fillOrders = tradeStream.map((event) => event.returnValues);
+    const tradeStream = await exchange.getPastEvents("Trade", {
+      fromBlock: 0,
+      toBlock: "latest",
+    });
+    const fillOrders = tradeStream.map((event) => event.returnValues);
 
-  dispatch(filledOrdersLoaded(fillOrders));
+    dispatch(filledOrdersLoaded(fillOrders));
 
-  const orderStream = await exchange.getPastEvents("Order", {
-    fromBlock: 0,
-    toBlock: "latest",
-  });
-  const allOrders = orderStream.map((event) => event.returnValues);
+    const orderStream = await exchange.getPastEvents("Order", {
+      fromBlock: 0,
+      toBlock: "latest",
+    });
+    const allOrders = orderStream.map((event) => event.returnValues);
 
-  dispatch(allOrdersLoaded(allOrders));
+    dispatch(allOrdersLoaded(allOrders));
+  }
+};
+
+export const cancelOrder = async (dispatch, exchange, order, account) => {
+  console.log('exchange interaction', exchange)
+  if (exchange.methods !== undefined) {
+    await exchange.methods
+      .cancelOrder(order.id)
+      .send({ from: account })
+      .on("transactionHash", (hash) => {
+        dispatch(orderCancelling());
+      })
+      .on("error", (error) => {
+        console.log(error);
+        window.alert("There was an error!");
+      });
+  }
 };

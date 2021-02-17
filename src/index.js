@@ -1,19 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./components/App";
 import "bootstrap/dist/css/bootstrap.min.css";
 import configureStore from "./store/configureStore";
 import { Provider } from "react-redux";
+import App from "./components/App";
+
 // import reportWebVitals from './reportWebVitals';
 
 const store = configureStore();
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>,
+  <Provider store={store}>
+    <App />
+  </Provider>,
   document.getElementById("root")
 );
 
