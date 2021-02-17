@@ -2,7 +2,10 @@ import Web3 from "web3";
 import Token from "../abis/Token.json";
 import Exchange from "../abis/Exchange.json";
 import {
+  allOrdersLoaded,
+  cancelledOrdersLoaded,
   exchangeLoaded,
+  filledOrdersLoaded,
   tokenLoaded,
   web3AccountLoaded,
   web3Loaded,
@@ -32,7 +35,6 @@ export const loadToken = async (web3, networkId, dispatch) => {
     return token;
   } catch (error) {
     console.log(error);
-    window.alert("kkk");
     return null;
   }
 };
@@ -47,7 +49,34 @@ export const loadExchange = async (web3, networkId, dispatch) => {
     return exchange;
   } catch (error) {
     console.log(error);
-    window.alert("kkk");
     return null;
   }
+};
+
+export const loadAllOrders = async (exchange, dispatch) => {
+  // Fetch cancelled orders with the "Cancel" event stream
+  const cancelStream = await exchange.getPastEvents("Cancel", {
+    fromBlock: 0,
+    toBlock: "latest",
+  });
+  // Format cancelled orders
+  const cancelledOrders = await cancelStream.map((event) => event.returnValues);
+  //add cancelled orders to the redux store
+  dispatch(cancelledOrdersLoaded(cancelledOrders));
+
+  const tradeStream = await exchange.getPastEvents("Trade", {
+    fromBlock: 0,
+    toBlock: "latest",
+  });
+  const fillOrders = tradeStream.map((event) => event.returnValues);
+
+  dispatch(filledOrdersLoaded(fillOrders));
+
+  const orderStream = await exchange.getPastEvents("Order", {
+    fromBlock: 0,
+    toBlock: "latest",
+  });
+  const allOrders = orderStream.map((event) => event.returnValues);
+
+  dispatch(allOrdersLoaded(allOrders));
 };
