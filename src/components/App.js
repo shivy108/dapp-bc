@@ -13,7 +13,7 @@ import Content from "./Content";
 
 class App extends Component {
   componentWillMount() {
-    // this.l
+    
     this.getData(this.props.dispatch);
   }
 
