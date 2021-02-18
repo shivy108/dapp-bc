@@ -42,6 +42,36 @@ function exchange(state = {}, action) {
       };
     case "ORDER_CANCELLING":
       return { ...state, orderCancelling: true };
+    case "ORDER_CANCELLED":
+      return {
+        ...state,
+        orderCancelling: false,
+        cancelledOrders: {
+          ...state.cancelledOrders,
+          data: [...state.cancelledOrders.data, action.order],
+        },
+      };
+    case "ORDER_FILLING":
+      return { ...state, orderFilling: true };
+    case "ORDER_FILLED":
+      let index, data;
+      index = state.filledOrders.data.findIndex(
+        (order) => order.id === action.order.id
+      );
+      if (index === -1) {
+        data = [...state.filledOrders.data, action.order];
+      } else {
+        data = state.filledOrders.data;
+      }
+
+      return {
+        ...state,
+        orderFilling: false,
+        filledOrders: {
+          ...state.filledOrders,
+          data,
+        },
+      };
     default:
       return state;
   }

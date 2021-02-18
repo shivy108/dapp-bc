@@ -6,7 +6,10 @@ import {
   cancelledOrdersLoaded,
   exchangeLoaded,
   filledOrdersLoaded,
+  orderCancelled,
   orderCancelling,
+  orderFilled,
+  orderFilling,
   tokenLoaded,
   web3AccountLoaded,
   web3Loaded,
@@ -86,14 +89,38 @@ export const loadAllOrders = async (exchange, dispatch) => {
   }
 };
 
-export const cancelOrder = async (dispatch, exchange, order, account) => {
-  console.log('exchange interaction', exchange)
+export const cancelOrder = (dispatch, exchange, order, account) => {
   if (exchange.methods !== undefined) {
-    await exchange.methods
+    exchange.methods
       .cancelOrder(order.id)
       .send({ from: account })
       .on("transactionHash", (hash) => {
         dispatch(orderCancelling());
+      })
+      .on("error", (error) => {
+        console.log(error);
+        window.alert("There was an error!");
+      });
+  }
+};
+
+export const subscribeToEvents = async (exchange, dispatch) => {
+  if (exchange !== undefined) {
+    exchange.events.Cancel({}, (error, event) => {
+      dispatch(orderCancelled(event.returnValues));
+    });
+    exchange.events.Trade({}, (error, event) => {
+      dispatch(orderFilled(event.returnValues));
+    });
+  }
+};
+export const fillOrder = (dispatch, exchange, order, account) => {
+  if (exchange.methods !== undefined) {
+    exchange.methods
+      .fillOrder(order.id)
+      .send({ from: account })
+      .on("transactionHash", (hash) => {
+        dispatch(orderFilling());
       })
       .on("error", (error) => {
         console.log(error);
