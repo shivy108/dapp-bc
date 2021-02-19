@@ -1,6 +1,8 @@
 require("babel-register");
 require("babel-polyfill");
 require("dotenv").config();
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+const privateKeys = process.env.PRIVATE_KEYS || "";
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -46,9 +48,22 @@ module.exports = {
     // options below to some value.
     //
     development: {
-     host: "127.0.0.1",     // Localhost (default: none)
-     port: 7545,            // Standard Ethereum port (default: none)
-     network_id: "*",       // Any network (default: none)
+      host: "127.0.0.1", // Localhost (default: none)
+      port: 7545, // Standard Ethereum port (default: none)
+      network_id: "*", // Any network (default: none)
+    },
+    kovan: {
+      provider: function () {
+        return new HDWalletProvider(
+          //private key
+          privateKeys.split(","),
+          //node address
+          `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`
+        );
+      },
+      gas: 5000000,
+      gasPrice: 25000000000,
+      network_id: 42,
     },
     // Another network with more advanced options...
     // advanced: {
@@ -90,10 +105,10 @@ module.exports = {
       // version: "0.5.1",    // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
       // settings: {          // See the solidity docs for advice about optimization and evmVersion
-       optimizer: {
-         enabled: false,
-         runs: 200
-       }
+      optimizer: {
+        enabled: false,
+        runs: 200,
+      },
       //  evmVersion: "byzantium"
       // }
     },
